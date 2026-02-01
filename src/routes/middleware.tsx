@@ -1,38 +1,38 @@
-import { Navigate, Outlet } from "react-router-dom";
-import { useEffect } from "react";
-import { useUserStore } from "../store/useUserStore";
+// import { Navigate, Outlet } from "react-router-dom";
+// import { useEffect } from "react";
+// import { useUserStore } from "../store";
 
-const ProtectedRoute = () => {
-  const { token, user, fetchProfile, loading } = useUserStore();
+// const ProtectedRoute = () => {
+//   const { token, user, fetchProfile, loading } = useUserStore();
 
-  useEffect(() => {
-    if (token && !user) {
-      fetchProfile(); // Rehydrate user on refresh
-    }
-  }, [token, user, fetchProfile]);
+//   useEffect(() => {
+//     if (token && !user) {
+//       fetchProfile(); // Rehydrate user on refresh
+//     }
+//   }, [token, user, fetchProfile]);
 
-  // No token → go to login
-  if (!token) {
-    return <Navigate to="/landing" replace />;
-  }
+//   // No token → go to login
+//   if (!token) {
+//     return <Navigate to="/auth/login" replace />;
+//   }
 
-  // Token exists but profile not loaded yet
-  if (loading || !user) {
-    return <div className="p-6">Loading...</div>;
-  }
+//   // Token exists but profile not loaded yet
+//   if (loading || !user) {
+//     return <div className="p-6">Loading...</div>;
+//   }
 
-  return <Outlet />;
-};
+//   return <Outlet />;
+// };
 
 
-const PublicRoute = () => {
-  const { token } = useUserStore();
+// const PublicRoute = () => {
+//   const { token } = useUserStore();
 
-  if (token) {
-    return <Navigate to="/dashboard" replace />;
-  }
+//   if (token) {
+//     return <Navigate to="/dashboard" replace />;
+//   }
 
-  return <Outlet />;
-};
+//   return <Outlet />;
+// };
 
-export { PublicRoute, ProtectedRoute };
+// export { PublicRoute, ProtectedRoute };

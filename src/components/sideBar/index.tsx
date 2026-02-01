@@ -1,105 +1,17 @@
 import {
-  Boxes,
-  ChevronDown,
   LayoutDashboard,
   LogOut,
-  Search,
-  Truck,
-  UserCheck,
-  Users,
-  X,
-  User,
   Settings,
-  ShoppingCart,
-  Landmark, // Added icon for Shop
+  X,
 } from "lucide-react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useCommonStore } from "../../store";
 import React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useCommonStore, useUserStore } from "../../store";
+import { cn } from "../../utils/helper";
 
-/* ✅ ADDED LOGO */
-import Logo from "../../assets/logo.png";
-import { useUserStore } from "../../store/useUserStore";
-
-interface SubMenuItem {
-  name: string;
-  path: string;
-}
-
-interface MenuItem {
-  name: string;
-  icon: React.ElementType;
-  path: string;
-  children?: SubMenuItem[];
-}
-
-const menu: MenuItem[] = [
-  {
-    name: "Dashboard",
-    icon: LayoutDashboard,
-    path: "/dashboard",
-    children: [],
-  },
-  {
-    name: "Vehicles",
-    icon: Truck,
-    path: "/vehicles",
-    children: [
-      { name: "Fuel", path: "/vehicles/fuel" },
-      { name: "Service", path: "/vehicles/service" },
-    ],
-  },
-  {
-    name: "Customers",
-    icon: Users,
-    path: "/customers",
-    children: [
-      { name: "View Customers", path: "/customers/view" },
-      { name: "Add Customer", path: "/customers/add" },
-      { name: "Edit Customer", path: "/customers/edit" },
-    ],
-  },
-  {
-    name: "Stock",
-    icon: Boxes,
-    path: "/stock",
-    children: [
-      { name: "View Stock", path: "/stock/view" },
-      { name: "Add Stock", path: "/stock/add" },
-      { name: "Edit Stock", path: "/stock/edit" },
-    ],
-  },
-  {
-    name: "Staff",
-    icon: UserCheck,
-    path: "/staff",
-    // children: [
-    //   { name: "View Staff", path: "/staff/view" },
-    //   { name: "Add Staff", path: "/staff/add" },
-    //   { name: "Edit Staff", path: "/staff/edit" },
-    // ],
-  },
-  {
-    name: "Shop",
-    icon: ShoppingCart, 
-    path: "/shop",
-    children: [
-      { name: "Bunks", path: "/shop/bunks" },
-      { name: "Services", path: "/shop/services" },
-    ],
-  },
-  {
-    name: "Banks",
-    icon: Landmark,
-    path: "/banks",
-    children: [],
-  },
-  {
-    name: "Profile",
-    icon: User,
-    path: "/profile",
-    children: [],
-  },
+const menu = [
+  { name: "Workspace", icon: LayoutDashboard, path: "/dashboard" },
+  { name: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export default function Sidebar({ className }: { className?: string }) {
@@ -108,158 +20,68 @@ export default function Sidebar({ className }: { className?: string }) {
   const [showLogout, setShowLogout] = React.useState(false);
 
   const isOpen = useCommonStore((state) => state.isOpen);
-  const toggle = useCommonStore((state) => state.toggle);
+  const setState = useCommonStore((state) => state.setCommonStates);
   const logout = useUserStore((state) => state.logout);
 
   const handleLogout = async () => {
-    logout(); // clears token + user safely
+    logout();
     navigate("/login");
   };
 
   return (
     <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/10 lg:hidden"
+          onClick={() => setState("isOpen", false)}
+        />
+      )}
+
       <aside
-        className={`relative z-10 w-64 bg-white flex flex-col gap-5 px-4 py-6 rounded-2xl ${className}`}
-      >
-        {isOpen && (
-          <div
-            className="absolute right-3 top-5 cursor-pointer p-1"
-            onClick={toggle}
-          >
-            <X />
-          </div>
+        className={cn(
+          "z-50 flex flex-col items-center justify-center",
+          "lg:static lg:translate-x-0 lg:w-fit lg:min-h-80",
+          "fixed top-16 left-4",
+          isOpen ? "-translate-x-1" : "-translate-x-10 hidden",
+
+          className
         )}
+      >
+        <div className={cn("bg-white dark:bg-slate-900/90 p-4 px-1 min-h-80 transition-transform duration-300 rounded-2xl flex flex-col items-center",
+          "border border-white/40 dark:border-slate-700/50 shadow-2xl",
+        )}>
 
-        {/* BRAND */}
-        <div className="flex items-center gap-3 px-2">
-          <img
-            src={Logo}
-            alt="Aswath Hollow Bricks"
-            className="h-10 w-10 rounded-lg object-contain"
+          <nav className={`flex flex-col gap-3 grow border-b border-slate-200 dark:border-slate-800`}>
+            {menu.map((item) => (
+              <SidebarItem
+                key={item.name}
+                item={item}
+                isActive={location.pathname === item.path || location.pathname.startsWith(item.path + '/')}
+                onClick={() => {
+                  navigate(item.path);
+                  if (window.innerWidth < 768) setState("isOpen", false);
+                }}
+              />
+            ))}
+
+          </nav>
+          <SidebarItem
+            item={{ name: "Logout", icon: LogOut, path: "" }}
+            isLogout={true}
+            isActive={false}
+            onClick={() => setShowLogout(true)}
           />
-          <div className="leading-tight">
-            <p className="text-sm font-semibold text-gray-900">ASWATH</p>
-            <p className="text-xs font-medium text-orange-500">
-              HOLLOW BRICKS
-            </p>
-          </div>
-        </div>
-
-        {/* SEARCH */}
-        <div className="relative">
-          <Search
-            size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-          />
-          <input
-            placeholder="Search"
-            className="w-full pl-10 pr-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-400"
-          />
-        </div>
-
-        {/* NAV */}
-        <nav className="flex-1 space-y-1">
-          <div className="text-xs uppercase text-slate-500 px-2">
-            All pages
-          </div>
-
-          {menu.map((item) => {
-            const isParentActive =
-              item.path && location.pathname.includes(item.path);
-
-            return (
-              <div key={item.name}>
-                <div
-                  onClick={() => navigate(item.path)}
-                  className={`flex items-center justify-between px-3 py-3 rounded-lg cursor-pointer transition relative
-                  ${isParentActive
-                      ? "text-orange-500 bg-orange-50"
-                      : "hover:bg-orange-50"
-                    }`}
-                >
-                  {isParentActive && (
-                    <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-orange-500 rounded-full" />
-                  )}
-                  <div className="flex gap-3 items-center">
-                    <item.icon size={18} />
-                    <p className="text-sm font-medium">{item.name}</p>
-                  </div>
-                  {item.children && item.children.length > 0 && (
-                    <ChevronDown size={14} />
-                  )}
-                </div>
-
-                {item.children && isParentActive && (
-                  <div className="ml-8 mt-2 space-y-1">
-                    {item.children.map((sub) => {
-                      const isActive = location.pathname.includes(sub.path);
-
-                      return (
-                        <div
-                          key={sub.name}
-                          onClick={() => navigate(sub.path)}
-                          className={`px-3 py-2 text-sm rounded-md cursor-pointer transition relative
-                          ${isActive
-                              ? "text-orange-500 bg-orange-50"
-                              : "hover:bg-orange-50"
-                            }`}
-                        >
-                          {isActive && (
-                            <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 bg-orange-500 rounded-full" />
-                          )}
-                          <p>{sub.name}</p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </nav>
-
-        {/* SETTINGS */}
-        <div
-          onClick={() => navigate("/settings")}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 cursor-pointer"
-        >
-          <Settings size={18} />
-          <p>Settings</p>
-        </div>
-
-        {/* LOGOUT */}
-        <div
-          onClick={() => setShowLogout(true)}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 cursor-pointer"
-        >
-          <LogOut size={18} />
-          <p>Logout</p>
         </div>
       </aside>
 
-      {/* LOGOUT MODAL */}
       {showLogout && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6">
-            <h2 className="text-lg font-semibold text-gray-800">
-              Confirm Logout
-            </h2>
-            <p className="text-sm text-gray-600 mt-2">
-              Are you sure you want to logout?
-            </p>
-            <div className="flex justify-end gap-3 mt-6">
-              <button
-                onClick={() => setShowLogout(false)}
-                className="px-4 py-2 text-sm rounded-md border border-gray-300 hover:bg-gray-100"
-              >
-                No
-              </button>
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 text-sm rounded-md bg-red-600 text-white hover:bg-red-700"
-              >
-                Yes, Logout
-              </button>
+        <div className="fixed inset-0 z-10 flex items-center justify-center bg-slate-900/60 backdrop-blur-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+            <h2 className="text-slate-900 dark:text-white text-xl font-bold">Confirm Logout</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Are you sure you want to end your session?</p>
+            <div className="flex gap-3 mt-8">
+              <button onClick={() => setShowLogout(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
+              <button onClick={handleLogout} className="flex-1 px-4 py-2.5 text-sm font-medium bg-rose-600 text-white rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-700 transition-colors">Logout</button>
             </div>
           </div>
         </div>
@@ -267,3 +89,48 @@ export default function Sidebar({ className }: { className?: string }) {
     </>
   );
 }
+
+
+
+
+
+const SidebarItem = ({ item, isActive, onClick, isLogout = false }: { item: typeof menu[0]; isActive: boolean; onClick: () => void; isLogout?: boolean }) => {
+  const Icon = item.icon;
+
+  return (
+    <div
+      onClick={onClick}
+      className={cn(
+        "group relative flex items-center justify-center p-3 cursor-pointer rounded-lg transition-colors",
+        !isLogout && "hover:bg-indigo-500/10 dark:hover:bg-indigo-500/20",
+        isActive && !isLogout && "bg-indigo-500/20 dark:bg-indigo-500/20",
+        // Logout (Red) Hover and Active
+        isLogout && "hover:bg-red-500/10 dark:hover:bg-red-500/20",
+        isActive && isLogout && "bg-red-500/20 dark:bg-red-500/20"
+      )}
+    >
+      <div
+        className={cn(
+          "relative z-10 transition-all duration-300",
+          isLogout ? "text-rose-500" : "text-slate-500 dark:text-slate-400 group-hover:text-indigo-500 group-hover:scale-110",
+          isActive && !isLogout && "text-indigo-600 dark:text-indigo-400 scale-110"
+        )}
+      >
+        <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+      </div>
+      <div
+        className={cn(
+          "absolute left-12 top-1/2 -translate-y-1/2 z-50 pointer-events-none flex items-center justify-center overflow-hidden whitespace-nowrap",
+          "size-0 opacity-0 origin-left transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "group-hover:size-fit group-hover:opacity-100 group-hover:px-4 group-hover:py-2.5",
+          "rounded-md shadow-lg",
+          isLogout ? "bg-red-500" : "bg-indigo-600"
+        )}
+      >
+        <span className="text-xs font-semibold uppercase text-white">
+          {item.name}
+        </span>
+      </div>
+    </div>
+  );
+};

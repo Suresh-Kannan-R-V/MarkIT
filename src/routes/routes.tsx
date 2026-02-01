@@ -1,13 +1,23 @@
 import { useRoutes } from "react-router-dom";
-import Layout from "../layout/layout";
+import { Layout as AuthLayout } from "../layout/auth";
+import Layout from "../layout/pages";
 import { privateRoutes, publicRoutes } from "./allRoute";
-import { ProtectedRoute, PublicRoute } from "./middleware";
+// import { ProtectedRoute, PublicRoute } from "./middleware";
 
 export const AppRoutes = () => {
-  const routes = useRoutes([
-    // 🔐 Protected Routes (Need Token)
+  return useRoutes([
     {
-      element: <ProtectedRoute />,
+      // element: <PublicRoute />, // ✅ middleware wrapper
+      children: [
+        {
+          path: "/auth",
+          element: <AuthLayout />,
+          children: publicRoutes,
+        },
+      ],
+    },
+    {
+      // element: <ProtectedRoute />, // ✅ middleware wrapper
       children: [
         {
           path: "/",
@@ -16,13 +26,5 @@ export const AppRoutes = () => {
         },
       ],
     },
-
-    // 🌍 Public Routes (No Token Needed)
-    {
-      element: <PublicRoute />,
-      children: publicRoutes,
-    },
   ]);
-
-  return routes;
 };

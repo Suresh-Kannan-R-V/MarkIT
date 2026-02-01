@@ -2,35 +2,31 @@ import { create } from "zustand";
 import { BASE_URL } from "../api/base";
 
 export interface User {
-  userid: number;
+  user_id: number;
+  Institute_id: number;
   name: string;
   email: string;
   phoneNumber: string;
-  amount: number;
   imageUrl?: string | null;
-
-  // Document URLs
-  aadharUrl?: string | null;
-  drivingLicenceUrl?: string | null;
-  drivingLicenceBackUrl?: string | null;
-  drivingLicenceValidity?: string | null;
-
   userRole: number;
 }
 
 interface UserState {
   token: string | null;
+  role: string | null;
   user: User | null;
   loading: boolean;
 
   setToken: (token: string | null) => void;
+  setRole: (role: string | null) => void;
   setUser: (user: User | null) => void;
-  fetchProfile: () => Promise<void>;
+  fetchProfile?: () => Promise<void>;
   logout: () => void;
 }
 
 export const useUserStore = create<UserState>((set, get) => ({
   token: localStorage.getItem("token"),
+  role: localStorage.getItem("role"),
   user: null,
   loading: false,
 
@@ -39,35 +35,45 @@ export const useUserStore = create<UserState>((set, get) => ({
     else localStorage.removeItem("token");
     set({ token });
   },
+  setRole: (role) => {
+    if (role) localStorage.setItem("role", role);
+    else localStorage.removeItem("role");
+    set({ role });
+  },
 
   setUser: (user) => set({ user }),
 
-  fetchProfile: async () => {
-    const token = get().token;
-    if (!token) return;
+  // fetchProfile: async () => {
+  //   const { token, role } = get();
+  //   if (!token || !role) return;
 
-    set({ loading: true });
+  //   set({ loading: true });
 
-    try {
-      const res = await fetch(`${BASE_URL}/user/profile`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  //   // 🔥 ROLE-BASED API
+  //   const profileUrl =
+  //     role === "admin"
+  //       ? `${BASE_URL}/admin/me`
+  //       : `${BASE_URL}/intern/me`;
 
-      if (!res.ok) throw new Error("Invalid token");
+  //   try {
+  //     const res = await fetch(profileUrl, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      const data: User = await res.json();
-      set({ user: data });
-    } catch (err) {
-      console.error("Profile fetch failed", err);
-      localStorage.removeItem("token");
-      set({ token: null, user: null });
-    } finally {
-      set({ loading: false });
-    }
-  },
+  //     if (!res.ok) throw new Error("Profile fetch failed");
 
+  //     const data: User = await res.json();
+  //     set({ user: data });
+  //   } catch (err) {
+  //     console.error("Profile fetch failed", err);
+  //     localStorage.clear();
+  //     set({ token: null, role: null, user: null });
+  //   } finally {
+  //     set({ loading: false });
+  //   }
+  // },
   logout: () => {
     localStorage.removeItem("token");
     set({ token: null, user: null });

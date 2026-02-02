@@ -1,8 +1,7 @@
 import {
   LayoutDashboard,
   LogOut,
-  Settings,
-  X,
+  Settings
 } from "lucide-react";
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -24,8 +23,9 @@ export default function Sidebar({ className }: { className?: string }) {
   const logout = useUserStore((state) => state.logout);
 
   const handleLogout = async () => {
+    setShowLogout(false)
     logout();
-    navigate("/login");
+    navigate("/auth/login");
   };
 
   return (
@@ -76,12 +76,12 @@ export default function Sidebar({ className }: { className?: string }) {
 
       {showLogout && (
         <div className="fixed inset-0 z-10 flex items-center justify-center bg-slate-900/60 backdrop-blur-md">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 w-full max-w-sm shadow-2xl">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 w-full max-w-sm shadow-2xl">
             <h2 className="text-slate-900 dark:text-white text-xl font-bold">Confirm Logout</h2>
             <p className="text-slate-500 dark:text-slate-400 mt-2">Are you sure you want to end your session?</p>
             <div className="flex gap-3 mt-8">
-              <button onClick={() => setShowLogout(false)} className="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">Cancel</button>
-              <button onClick={handleLogout} className="flex-1 px-4 py-2.5 text-sm font-medium bg-rose-600 text-white rounded-xl shadow-lg shadow-rose-600/20 hover:bg-rose-700 transition-colors">Logout</button>
+              <button onClick={() => setShowLogout(false)} className="cursor-pointer flex-1 px-4 py-2.5 text-sm font-medium text-indigo-500 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-800 rounded-lg transition-colors">Cancel</button>
+              <button onClick={handleLogout} className="cursor-pointer flex-1 px-4 py-2.5 text-sm font-medium bg-rose-600 text-white rounded-lg shadow-lg shadow-rose-600/20 hover:bg-rose-700 transition-colors">Logout</button>
             </div>
           </div>
         </div>
@@ -101,7 +101,7 @@ const SidebarItem = ({ item, isActive, onClick, isLogout = false }: { item: type
     <div
       onClick={onClick}
       className={cn(
-        "group relative flex items-center justify-center p-3 cursor-pointer rounded-lg transition-colors",
+        "group relative flex items-center justify-center p-3 cursor-pointer rounded-lg transition-colors ease-in-out duration-500",
         !isLogout && "hover:bg-indigo-500/10 dark:hover:bg-indigo-500/20",
         isActive && !isLogout && "bg-indigo-500/20 dark:bg-indigo-500/20",
         // Logout (Red) Hover and Active
@@ -121,7 +121,7 @@ const SidebarItem = ({ item, isActive, onClick, isLogout = false }: { item: type
       <div
         className={cn(
           "absolute left-12 top-1/2 -translate-y-1/2 z-50 pointer-events-none flex items-center justify-center overflow-hidden whitespace-nowrap",
-          "size-0 opacity-0 origin-left transition-all duration-400 ease-[cubic-bezier(0.23,1,0.32,1)]",
+          "size-0 opacity-0 origin-left transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
           "group-hover:size-fit group-hover:opacity-100 group-hover:px-4 group-hover:py-2.5",
           "rounded-md shadow-lg",
           isLogout ? "bg-red-500" : "bg-indigo-600"

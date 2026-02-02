@@ -52,7 +52,9 @@ export default function Topbar() {
       </div>
 
       <div className="flex items-center gap-1">
-        <Bell className="text-gray-500 cursor-pointer" />
+        <div className="cursor-pointer p-2 rounded-md text-gray-500 hover:text-indigo-500 hover:bg-indigo-500/20 ease-in-out duration-300">
+          <Bell size={18} strokeWidth={2.5}/>
+        </div>
 
         <ProfileSection user={user} role={role} />
       </div>

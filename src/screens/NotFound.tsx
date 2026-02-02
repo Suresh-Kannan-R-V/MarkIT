@@ -15,7 +15,7 @@ export const NotFound = () => {
 
       <button
         onClick={() => navigate("/dashboard")}
-        className="mt-6 bg-green-700 text-white px-6 py-2 rounded-md hover:bg-green-800 transition"
+        className="cursor-pointer mt-6 bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition"
       >
         Go to Dashboard
       </button>
